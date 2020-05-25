@@ -24,9 +24,9 @@ async function sendEmail(toEmail, token, type) {
 
     var htmlContent = "";
     if (type === "verify") {
-        htmlContent = "Verify account using <a href='localhost:3001/verifyEmail?token=" + token + "'>this</a> link";
+        htmlContent = "Verify account using <a href='https://missionaustralia-back.herokuapp.com/verifyEmail?token=" + token + "'>this</a> link";
     } else if (type === "forgot") {
-        htmlContent = "Reset password using <a href='localhost:3001/reset/" + token + "'>this</a> link"
+        htmlContent = "Reset password using <a href='https://missionaustralia-back.herokuapp.com/reset/" + token + "'>this</a> link"
     }
 
     let info = await transporter.sendMail({
@@ -49,7 +49,7 @@ async function listDatabases(client) {
 };
 
 async function getQuestions() {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -81,7 +81,7 @@ async function getQuestions() {
 }
 
 async function getQuestion(qid) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -102,7 +102,7 @@ async function getQuestion(qid) {
 }
 
 async function addQuestion(questionObj) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -120,7 +120,7 @@ async function addQuestion(questionObj) {
 }
 
 async function postComment(qid, token, comment) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -151,7 +151,7 @@ async function postComment(qid, token, comment) {
 }
 
 async function registerUser(registerObj) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -184,7 +184,7 @@ async function registerUser(registerObj) {
 }
 
 async function verifyEmail(_id, obj) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -205,7 +205,7 @@ async function verifyEmail(_id, obj) {
 }
 
 async function login(email, password) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -242,7 +242,7 @@ async function login(email, password) {
 }
 
 async function updatePassword(token,password) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -281,7 +281,7 @@ async function updatePassword(token,password) {
 }
 
 async function addOpportunity(opportunityObj) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -298,7 +298,7 @@ async function addOpportunity(opportunityObj) {
 }
 
 async function getOpportunities() {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -329,7 +329,7 @@ async function getOpportunities() {
 }
 
 async function updateOpportunity(token,body) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     
@@ -366,7 +366,7 @@ async function updateOpportunity(token,body) {
 }
 
 async function deleteOpportunity(token,oid) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     
@@ -397,7 +397,7 @@ async function deleteOpportunity(token,oid) {
 }
 
 async function getOrganizations() {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -425,7 +425,7 @@ async function getOrganizations() {
 }
 
 async function uploadChat(chatObj) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -442,7 +442,7 @@ async function uploadChat(chatObj) {
 }
 
 async function getChats() {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -470,7 +470,7 @@ async function getChats() {
 }
 
 async function addSurvey(surveyObj) {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -487,7 +487,7 @@ async function addSurvey(surveyObj) {
 }
 
 async function getSurveys() {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -646,4 +646,4 @@ app.get('/getSurveys', async (req, res) => {
     res.status(200).send({ response: 200, data: output });
 });
 
-app.listen(port, () => console.log(`Mission Australia listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`Mission Australia listening at https://missionaustralia-back.herokuapp.com  : ${port}`))
