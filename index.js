@@ -11,6 +11,8 @@ const nodemailer = require("nodemailer");
 var jwt = require('jsonwebtoken');
 const secret = "Mission Australia";
 const passwordHash = require('password-hash');
+const databaseName = "heroku_z60d043p";
+const dbUrl = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
 
 async function sendEmail(toEmail, token, type) {
     let transporter = nodemailer.createTransport({
@@ -49,7 +51,7 @@ async function listDatabases(client) {
 };
 
 async function getQuestions() {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -57,7 +59,7 @@ async function getQuestions() {
     try {
         await client.connect();
 
-        const cursor = await client.db("missionAustralia").collection("Questions")
+        const cursor = await client.db(databaseName).collection("Questions")
             .find();
 
         const results = await cursor.toArray();
@@ -81,7 +83,7 @@ async function getQuestions() {
 }
 
 async function getQuestion(qid) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -89,7 +91,7 @@ async function getQuestion(qid) {
     try {
         await client.connect();
 
-        var result = await client.db("missionAustralia").collection("Questions")
+        var result = await client.db(databaseName).collection("Questions")
             .findOne({ '_id': ObjectID(qid) });
 
         return result;
@@ -102,14 +104,14 @@ async function getQuestion(qid) {
 }
 
 async function addQuestion(questionObj) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         await client.connect();
         questionObj.comments = [];
-        const result = await client.db("missionAustralia").collection("Questions").insertOne(questionObj);
+        const result = await client.db(databaseName).collection("Questions").insertOne(questionObj);
         return result.ops;
     } catch (e) {
         console.error(e);
@@ -120,7 +122,7 @@ async function addQuestion(questionObj) {
 }
 
 async function postComment(qid, token, comment) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -138,7 +140,7 @@ async function postComment(qid, token, comment) {
             content: comment
         });
 
-        const result = await client.db("missionAustralia").collection("Questions")
+        const result = await client.db(databaseName).collection("Questions")
             .updateOne({ '_id': ObjectID(question._id) }, { $set: question });
 
         return result;
@@ -151,14 +153,14 @@ async function postComment(qid, token, comment) {
 }
 
 async function registerUser(registerObj) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         await client.connect();
 
-        var result = await client.db("missionAustralia").collection("Users")
+        var result = await client.db(databaseName).collection("Users")
             .findOne({ email: registerObj.email });
 
         if (result) {
@@ -184,7 +186,7 @@ async function registerUser(registerObj) {
 }
 
 async function verifyEmail(_id, obj) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -192,7 +194,7 @@ async function verifyEmail(_id, obj) {
     try {
         await client.connect();
 
-        const result = await client.db("missionAustralia").collection("Users")
+        const result = await client.db(databaseName).collection("Users")
             .updateOne({ '_id': ObjectID(_id) }, { $set: obj });
 
         return result;
@@ -205,7 +207,7 @@ async function verifyEmail(_id, obj) {
 }
 
 async function login(email, password) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -213,7 +215,7 @@ async function login(email, password) {
     try {
         await client.connect();
 
-        var result = await client.db("missionAustralia").collection("Users")
+        var result = await client.db(databaseName).collection("Users")
             .findOne({ email: email });
 
         if (result) {
@@ -242,7 +244,7 @@ async function login(email, password) {
 }
 
 async function updatePassword(token,password) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -253,7 +255,7 @@ async function updatePassword(token,password) {
         try {
         var decoded = jwt.verify(token, secret);
 
-        var result = await client.db("missionAustralia").collection("Users")
+        var result = await client.db(databaseName).collection("Users")
             .findOne({ email: decoded.email });
 
         if (result) {
@@ -281,13 +283,13 @@ async function updatePassword(token,password) {
 }
 
 async function addOpportunity(opportunityObj) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         await client.connect();
-        const result = await client.db("missionAustralia").collection("Opportunities").insertOne(opportunityObj);
+        const result = await client.db(databaseName).collection("Opportunities").insertOne(opportunityObj);
         return result.ops;
     } catch (e) {
         console.error(e);
@@ -298,7 +300,7 @@ async function addOpportunity(opportunityObj) {
 }
 
 async function getOpportunities() {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -306,7 +308,7 @@ async function getOpportunities() {
     try {
         await client.connect();
 
-        const cursor = await client.db("missionAustralia").collection("Opportunities")
+        const cursor = await client.db(databaseName).collection("Opportunities")
             .find();
 
         const results = await cursor.toArray();
@@ -329,7 +331,7 @@ async function getOpportunities() {
 }
 
 async function updateOpportunity(token,body) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     
@@ -338,7 +340,7 @@ async function updateOpportunity(token,body) {
         try {
         var decoded = jwt.verify(token, secret);
         
-        var result = await client.db("missionAustralia").collection("Opportunities")
+        var result = await client.db(databaseName).collection("Opportunities")
             .findOne({ _id: ObjectID(body._id) });
         
         if (result) {
@@ -346,7 +348,7 @@ async function updateOpportunity(token,body) {
             delete body._id;
             delete body.iat;
             delete body.token;
-            const out = await client.db("missionAustralia").collection("Opportunities")
+            const out = await client.db(databaseName).collection("Opportunities")
                 .updateOne({ '_id': ObjectID(_id) }, { $set: body });
             result = { status: 200, message: "Entry updated" }
         } else {
@@ -366,7 +368,7 @@ async function updateOpportunity(token,body) {
 }
 
 async function deleteOpportunity(token,oid) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     
@@ -375,7 +377,7 @@ async function deleteOpportunity(token,oid) {
         try {
         var decoded = jwt.verify(token, secret);
         
-        var result = await client.db("missionAustralia").collection("Opportunities")
+        var result = await client.db(databaseName).collection("Opportunities")
             .remove({ _id: ObjectID(oid) });
         
         if (result) {
@@ -397,7 +399,7 @@ async function deleteOpportunity(token,oid) {
 }
 
 async function getOrganizations() {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -405,7 +407,7 @@ async function getOrganizations() {
     try {
         await client.connect();
 
-        const cursor = await client.db("missionAustralia").collection("Organizations")
+        const cursor = await client.db(databaseName).collection("Organizations")
             .find();
 
         const results = await cursor.toArray();
@@ -425,13 +427,13 @@ async function getOrganizations() {
 }
 
 async function uploadChat(chatObj) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         await client.connect();
-        const result = await client.db("missionAustralia").collection("Chats").insertOne(chatObj);
+        const result = await client.db(databaseName).collection("Chats").insertOne(chatObj);
         return result.ops;
     } catch (e) {
         console.error(e);
@@ -442,7 +444,7 @@ async function uploadChat(chatObj) {
 }
 
 async function getChats() {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -450,7 +452,7 @@ async function getChats() {
     try {
         await client.connect();
 
-        const cursor = await client.db("missionAustralia").collection("Chats")
+        const cursor = await client.db(databaseName).collection("Chats")
             .find();
 
         const results = await cursor.toArray();
@@ -470,13 +472,13 @@ async function getChats() {
 }
 
 async function addSurvey(surveyObj) {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         await client.connect();
-        const result = await client.db("missionAustralia").collection("Surveys").insertOne(surveyObj);
+        const result = await client.db(databaseName).collection("Surveys").insertOne(surveyObj);
         return result.ops;
     } catch (e) {
         console.error(e);
@@ -487,7 +489,7 @@ async function addSurvey(surveyObj) {
 }
 
 async function getSurveys() {
-    const uri = "mongodb://darpan:Darpan30@ds147207.mlab.com:47207/heroku_z60d043p";
+    const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -495,7 +497,7 @@ async function getSurveys() {
     try {
         await client.connect();
 
-        const cursor = await client.db("missionAustralia").collection("Surveys")
+        const cursor = await client.db(databaseName).collection("Surveys")
             .find();
 
         const results = await cursor.toArray();
