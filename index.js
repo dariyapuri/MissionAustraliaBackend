@@ -170,7 +170,7 @@ async function registerUser(registerObj) {
             console.log(`No email found`);
             var hashedPassword = passwordHash.generate(registerObj.password);
             registerObj.password = hashedPassword;
-            var inserted = await client.db("missionAustralia").collection("Users").insertOne(registerObj);
+            var inserted = await client.db(databaseName).collection("Users").insertOne(registerObj);
             var token = jwt.sign(inserted.ops[0], secret);
             var output = await sendEmail(registerObj.email, token, "verify");
             result = { status: 200, message: "Verification email sent" }
@@ -263,7 +263,7 @@ async function updatePassword(token,password) {
             delete decoded._id;
             delete decoded.iat;
             decoded.password = passwordHash.generate(password);
-            const out = await client.db("missionAustralia").collection("Users")
+            const out = await client.db(databaseName).collection("Users")
                 .updateOne({ '_id': ObjectID(_id) }, { $set: decoded });
             result = { status: 200, message: "Password updated" }
         } else {
@@ -551,9 +551,9 @@ app.get('/verifyEmail', async (req, res) => {
         delete decoded._id;
         delete decoded.iat;
         var output = await verifyEmail(_id, decoded).catch(console.error);
-        res.redirect('http://localhost:3000/#/login?verified=true');
+        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=true');
     } else {
-        res.redirect('http://localhost:3000/#/login?verified=false');
+        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=false');
     }
 });
 
@@ -563,13 +563,13 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/forgot', async (req, res) => {
-    const uri = "mongodb://localhost:27017/missionAustralia";
+    const uri = dbUrl;
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
     try {
         await client.connect();
 
-        var result = await client.db("missionAustralia").collection("Users")
+        var result = await client.db(databaseName).collection("Users")
         .findOne({ email: req.body.email });
 
         if (result) {
@@ -592,9 +592,9 @@ app.get('/reset/:token', async (req, res) => {
     
     var decoded = jwt.verify(req.param('token'), secret);
     if (decoded._id) {
-        res.redirect('http://localhost:3000/#/reset/'+req.param('token'));
+        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/reset/'+req.param('token'));
     } else {
-        res.redirect('http://localhost:3000/#/reset/false');
+        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/reset/false');
     }
 });
 
