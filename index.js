@@ -206,7 +206,7 @@ async function verifyEmail(_id, obj) {
     }
 }
 
-async function login(email, password) {
+async function userLogin(email, password) {
     const uri = dbUrl;
 
 
@@ -221,12 +221,16 @@ async function login(email, password) {
         if (result) {
             console.log(result);
             if (result.verified === true) {
-                if (passwordHash.verify(password, result.password)) {
-                    delete result.password;
-                    var token = jwt.sign(result, secret);
-                    result = { status: 200, message: "Login Successful", token, admin: result.admin, title: result.title }
+                if (result.admin === false) {
+                    if (passwordHash.verify(password, result.password)) {
+                        delete result.password;
+                        var token = jwt.sign(result, secret);
+                        result = { status: 200, message: "Login Successful", token, admin: result.admin, title: result.title }
+                    } else {
+                        result = { status: 505, message: "Invalid credentials" }
+                    }
                 } else {
-                    result = { status: 505, message: "Invalid credentials" }
+                    result = { status: 403, message: "You do not have a user account" }
                 }
             } else {
                 result = { status: 403, message: "Please verify your account" }
@@ -243,37 +247,78 @@ async function login(email, password) {
     }
 }
 
-async function updatePassword(token,password) {
+async function adminLogin(email, password) {
     const uri = dbUrl;
 
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    console.log("TOKEN",token,password);
-    
+
     try {
         await client.connect();
-        try {
-        var decoded = jwt.verify(token, secret);
 
         var result = await client.db(databaseName).collection("Users")
-            .findOne({ email: decoded.email });
+            .findOne({ email: email });
 
         if (result) {
-            var _id = decoded._id;
-            delete decoded._id;
-            delete decoded.iat;
-            decoded.password = passwordHash.generate(password);
-            const out = await client.db(databaseName).collection("Users")
-                .updateOne({ '_id': ObjectID(_id) }, { $set: decoded });
-            result = { status: 200, message: "Password updated" }
+            console.log(result);
+            if (result.verified === true) {
+                if (result.admin === true) {
+                    if (passwordHash.verify(password, result.password)) {
+                        delete result.password;
+                        var token = jwt.sign(result, secret);
+                        result = { status: 200, message: "Login Successful", token, admin: result.admin, title: result.title }
+                    } else {
+                        result = { status: 505, message: "Invalid credentials" }
+                    }
+                } else {
+                    result = { status: 403, message: "You do not have a admin account" }
+                }
+            } else {
+                result = { status: 403, message: "Please verify your account" }
+            }
         } else {
             result = { status: 404, message: "User not available. Please register" }
         }
         return result;
-    } catch(err) {
-        console.log(err);
-        result = { status: 500, message: "Token Error" }
+    } catch (e) {
+        console.error(e);
+        return null;
+    } finally {
+        await client.close();
     }
+}
+
+async function updatePassword(token, password) {
+    const uri = dbUrl;
+
+
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log("TOKEN", token, password);
+
+    try {
+        await client.connect();
+        try {
+            var decoded = jwt.verify(token, secret);
+
+            var result = await client.db(databaseName).collection("Users")
+                .findOne({ email: decoded.email });
+
+            if (result) {
+                var _id = decoded._id;
+                delete decoded._id;
+                delete decoded.iat;
+                decoded.password = passwordHash.generate(password);
+                const out = await client.db("missionAustralia").collection("Users")
+                    .updateOne({ '_id': ObjectID(_id) }, { $set: decoded });
+                result = { status: 200, message: "Password updated" }
+            } else {
+                result = { status: 404, message: "User not available. Please register" }
+            }
+            return result;
+        } catch (err) {
+            console.log(err);
+            result = { status: 500, message: "Token Error" }
+        }
     } catch (e) {
         console.error(e);
         return null;
@@ -330,35 +375,35 @@ async function getOpportunities() {
     }
 }
 
-async function updateOpportunity(token,body) {
+async function updateOpportunity(token, body) {
     const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    
+
     try {
         await client.connect();
         try {
-        var decoded = jwt.verify(token, secret);
-        
-        var result = await client.db(databaseName).collection("Opportunities")
-            .findOne({ _id: ObjectID(body._id) });
-        
-        if (result) {
-            var _id = body._id;
-            delete body._id;
-            delete body.iat;
-            delete body.token;
-            const out = await client.db(databaseName).collection("Opportunities")
-                .updateOne({ '_id': ObjectID(_id) }, { $set: body });
-            result = { status: 200, message: "Entry updated" }
-        } else {
-            result = { status: 404, message: "Entry not available" }
+            var decoded = jwt.verify(token, secret);
+
+            var result = await client.db(databaseName).collection("Opportunities")
+                .findOne({ _id: ObjectID(body._id) });
+
+            if (result) {
+                var _id = body._id;
+                delete body._id;
+                delete body.iat;
+                delete body.token;
+                const out = await client.db(databaseName).collection("Opportunities")
+                    .updateOne({ '_id': ObjectID(_id) }, { $set: body });
+                result = { status: 200, message: "Entry updated" }
+            } else {
+                result = { status: 404, message: "Entry not available" }
+            }
+            return result;
+        } catch (err) {
+            console.log(err);
+            result = { status: 500, message: "Token Error" }
         }
-        return result;
-    } catch(err) {
-        console.log(err);
-        result = { status: 500, message: "Token Error" }
-    }
     } catch (e) {
         console.error(e);
         return null;
@@ -367,29 +412,29 @@ async function updateOpportunity(token,body) {
     }
 }
 
-async function deleteOpportunity(token,oid) {
+async function deleteOpportunity(token, oid) {
     const uri = dbUrl;
 
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    
+
     try {
         await client.connect();
         try {
-        var decoded = jwt.verify(token, secret);
-        
-        var result = await client.db(databaseName).collection("Opportunities")
-            .remove({ _id: ObjectID(oid) });
-        
-        if (result) {
-            result = { status: 200, message: "Entry removed" }
-        } else {
-            result = { status: 404, message: "Entry not available" }
+            var decoded = jwt.verify(token, secret);
+
+            var result = await client.db(databaseName).collection("Opportunities")
+                .remove({ _id: ObjectID(oid) });
+
+            if (result) {
+                result = { status: 200, message: "Entry removed" }
+            } else {
+                result = { status: 404, message: "Entry not available" }
+            }
+            return result;
+        } catch (err) {
+            console.log(err);
+            result = { status: 500, message: "Token Error" }
         }
-        return result;
-    } catch(err) {
-        console.log(err);
-        result = { status: 500, message: "Token Error" }
-    }
     } catch (e) {
         console.error(e);
         return null;
@@ -551,14 +596,27 @@ app.get('/verifyEmail', async (req, res) => {
         delete decoded._id;
         delete decoded.iat;
         var output = await verifyEmail(_id, decoded).catch(console.error);
-        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=true');
+        if (decoded.admin === true) {
+            res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=true&type=admin');
+        } else {
+            res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=false&type=user');
+        }
     } else {
-        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=false');
+        if (decoded.admin === false) {
+            res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=false&type=user');
+        } else {
+            res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/login?verified=true&type=admin');
+        }
     }
 });
 
-app.post('/login', async (req, res) => {
-    var output = await login(req.body.email, req.body.password).catch(console.error);
+app.post('/userLogin', async (req, res) => {
+    var output = await userLogin(req.body.email, req.body.password).catch(console.error);
+    res.status(200).json({ response: 200, data: output }).send();
+});
+
+app.post('/adminLogin', async (req, res) => {
+    var output = await adminLogin(req.body.email, req.body.password).catch(console.error);
     res.status(200).json({ response: 200, data: output }).send();
 });
 
@@ -569,8 +627,8 @@ app.post('/forgot', async (req, res) => {
     try {
         await client.connect();
 
-        var result = await client.db(databaseName).collection("Users")
-        .findOne({ email: req.body.email });
+        var result = await client.db("missionAustralia").collection("Users")
+            .findOne({ email: req.body.email });
 
         if (result) {
             var token = jwt.sign(result, secret);
@@ -588,18 +646,18 @@ app.post('/forgot', async (req, res) => {
 });
 
 app.get('/reset/:token', async (req, res) => {
-    console.log("TOKEN",req.param('token'));
-    
+    console.log("TOKEN", req.param('token'));
+
     var decoded = jwt.verify(req.param('token'), secret);
     if (decoded._id) {
-        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/reset/'+req.param('token'));
+        res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/reset/' + req.param('token'));
     } else {
         res.redirect('https://darpan30.github.io/MissionAustraliaFrontend/#/reset/false');
     }
 });
 
 app.post('/updatePassword', async (req, res) => {
-    var output = await updatePassword(req.body.token,req.body.password).catch(console.error);
+    var output = await updatePassword(req.body.token, req.body.password).catch(console.error);
     res.status(200).json({ response: 200, data: output }).send();
 });
 
@@ -614,12 +672,12 @@ app.get('/getOpportunities', async (req, res) => {
 });
 
 app.post('/updateOpportunity', async (req, res) => {
-    var output = await updateOpportunity(req.body.token,req.body).catch(console.error);
+    var output = await updateOpportunity(req.body.token, req.body).catch(console.error);
     res.status(200).json({ response: 200, data: output }).send();
 });
 
 app.post('/deleteOpportunity', async (req, res) => {
-    var output = await deleteOpportunity(req.body.token,req.body._id).catch(console.error);
+    var output = await deleteOpportunity(req.body.token, req.body._id).catch(console.error);
     res.status(200).json({ response: 200, data: output }).send();
 });
 
