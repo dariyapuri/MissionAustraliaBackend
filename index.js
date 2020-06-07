@@ -19,8 +19,8 @@ async function sendEmail(toEmail, token, type) {
         host: "smtp.gmail.com",
         port: 587,
         auth: {
-            user: "jaydarpan7@gmail.com",
-            pass: "Darpan123d"
+            user: "helpingwomenqut@gmail.com",
+            pass: "Qut@dcksm73"
         }
     });
 
